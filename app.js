@@ -304,6 +304,8 @@
     var st = $('stempel');
     $('stempel-teks').textContent = 'GILIRAN KE-' + state.drawn;
     st.classList.add('tampil');
+    clearTimeout(st._h);
+    st._h = setTimeout(function () { st.classList.remove('tampil'); }, 2500);
     var p = $('pemenang');
     p.textContent = '';
     p.appendChild(document.createTextNode('Ronde ' + state.drawn + ' — '));
