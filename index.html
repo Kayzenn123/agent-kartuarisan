@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eef2fb">
+<meta name="description" content="KARTUARISAN — denah giliran arisan di atas kertas blueprint. Kocok adil yang bisa diverifikasi, tarik kartu, lihat siapa dapat giliran dan berapa yang diterima.">
+<meta property="og:title" content="KARTUARISAN — Denah Giliran Arisan">
+<meta property="og:description" content="Kocok adil, tarik kartu, giliranmu ketahuan. Denah arisan di atas kertas blueprint.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://kayzenn123.github.io/agent-kartuarisan/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>KARTUARISAN — Denah Giliran Arisan</title>
+<link rel="preload" href="fonts/rasa-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/gothic-a1-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#meja">Lompat ke meja gambar</a>
+
+<header class="topbar">
+  <p class="brand"><span class="brand-mark" aria-hidden="true">KA</span> KARTU<span>ARISAN</span></p>
+  <p class="topbar-note">Denah giliran · skala 1:1 · revisi A</p>
+  <nav class="topbar-actions" aria-label="Pengaturan halaman">
+    <button id="btn-motion" type="button" aria-pressed="true">Gerak: nyala</button>
+    <button id="btn-marquee" type="button" aria-pressed="true">Marquee: jalan</button>
+  </nav>
+</header>
+
+<div class="marquee" id="marquee-atas" aria-hidden="true">
+  <div class="marquee-track" id="track-atas"></div>
+</div>
+<p class="sr-only">Marquee: kocok, tarik, giliran, denah, stempel. Isi yang sama tersedia sebagai teks statis di bawah.</p>
+
+<main id="utama">
+  <!-- ============ MEJA / HERO ============ -->
+  <section class="hero" id="meja" aria-labelledby="judul-utama">
+    <div class="hero-inner">
+      <p class="kicker"><span class="kicker-no">Lembar 01</span> Meja gambar · arisan konvensional</p>
+      <h1 id="judul-utama" class="judul"><span class="kata">KARTU</span> <span class="kata">ARISAN</span></h1>
+      <p class="subjudul">Denah giliran arisan, digambar di atas kertas blueprint. Kocokannya adil dan bisa dicek siapa saja — <strong>tarik kartunya, giliranmu ketahuan.</strong></p>
+
+      <dl class="papan-angka" aria-label="Ringkasan grup">
+        <div><dt>Anggota</dt><dd id="stat-anggota">12 orang</dd></div>
+        <div><dt>Iuran</dt><dd id="stat-iuran">Rp100.000</dd></div>
+        <div><dt>Pot per ronde</dt><dd id="stat-pot">Rp1.200.000</dd></div>
+        <div><dt>Ronde</dt><dd><span id="stat-ronde">0</span>/<span id="stat-total-ronde">12</span></dd></div>
+      </dl>
+
+      <div class="deck-wrap">
+        <p class="deck-label" id="deck-label">Tumpukan kartu — seret kartu teratas ke samping, atau tekan TARIK</p>
+        <div class="deck-stage">
+          <div class="deck" id="deck" role="group" aria-labelledby="deck-label" tabindex="0"
+               aria-describedby="deck-help"></div>
+          <p class="sr-only" id="deck-help">Tekan Enter atau Spasi untuk menarik kartu teratas. Panah kanan juga bisa.</p>
+          <div class="stempel" id="stempel" aria-hidden="true"><span id="stempel-teks">GILIRAN KE-1</span></div>
+        </div>
+        <div class="deck-actions">
+          <button id="btn-kocok" type="button" class="btn btn-utama">KOCOK</button>
+          <button id="btn-tarik" type="button" class="btn">TARIK KARTU</button>
+          <button id="btn-ulang" type="button" class="btn" hidden>KOCOK ULANG</button>
+        </div>
+        <p class="verifikasi" id="verifikasi">Hash kocokan: <code id="hash-kocokan">—</code> · <button id="btn-salinhash" type="button" class="tautan">salin bukti</button></p>
+        <p class="pemenang" id="pemenang" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GAMBAR GRUP ============ -->
+  <section class="bagian" id="gambar" aria-labelledby="judul-gambar">
+    <div class="bagian-head">
+      <p class="kicker"><span class="kicker-no">Lembar 02</span> Gambar grupmu</p>
+      <h2 id="judul-gambar">Gambar denah grupmu sendiri</h2>
+      <p class="bagian-sub">Isi nama grup, iuran, dan anggota. Pak Gambar yang menggambar denahnya — kamu tinggal seret kartunya.</p>
+    </div>
+
+    <form id="form-grup" novalidate>
+      <div class="form-grid">
+        <div class="field">
+          <label for="in-nama">Nama grup</label>
+          <input id="in-nama" name="nama" type="text" value="Arisan RT 05" maxlength="40" autocomplete="off">
+          <p class="field-hint" id="err-nama" role="alert" hidden></p>
+        </div>
+        <div class="field">
+          <label for="in-iuran">Iuran per orang (Rp)</label>
+          <input id="in-iuran" name="iuran" type="number" inputmode="numeric" min="1000" max="100000000" step="1000" value="100000">
+          <p class="field-hint" id="err-iuran" role="alert" hidden></p>
+        </div>
+        <div class="field">
+          <label for="in-periode">Periode kocokan</label>
+          <select id="in-periode" name="periode">
+            <option value="mingguan">Mingguan</option>
+            <option value="bulanan" selected>Bulanan</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="in-mulai">Tanggal mulai</label>
+          <input id="in-mulai" name="mulai" type="date" value="2026-11-01">
+          <p class="field-hint" id="err-mulai" role="alert" hidden></p>
+        </div>
+      </div>
+
+      <fieldset class="anggota-box">
+        <legend>Anggota <span id="jumlah-anggota">(12 orang)</span></legend>
+        <div class="tambah-anggota">
+          <label class="sr-only" for="in-anggota">Nama anggota baru</label>
+          <input id="in-anggota" type="text" placeholder="Tulis nama anggota, mis. Bu Sari" maxlength="30" autocomplete="off">
+          <button id="btn-tambah" type="button" class="btn">+ TAMBAH</button>
+        </div>
+        <p class="field-hint" id="err-anggota" role="alert" hidden></p>
+        <ul class="chip-list" id="chip-list"></ul>
+        <p class="anggota-kosong" id="anggota-kosong" hidden>Belum ada anggota — gambar dulu namanya di kotak atas, Pak Gambar tunggu.</p>
+      </fieldset>
+
+      <div class="contoh-row" aria-label="Grup contoh">
+        <span>Atau pakai denah contoh:</span>
+        <button type="button" class="btn btn-contoh" data-contoh="rt05">RT 05 · 12 orang · Rp100rb/bln</button>
+        <button type="button" class="btn btn-contoh" data-contoh="kantor">Kantor · 8 orang · Rp200rb/bln</button>
+        <button type="button" class="btn btn-contoh" data-contoh="keluarga">Keluarga · 20 orang · Rp50rb/mgg</button>
+      </div>
+      <p class="form-note">Semua angka di halaman ini <strong>CONTOH</strong> sampai kamu ubah sendiri. Rumus terbuka: pot satu ronde = iuran × jumlah anggota; yang diterima tiap pemenang = pot penuh, tanpa potongan.</p>
+    </form>
+  </section>
+
+  <!-- ============ DENAH GILIRAN ============ -->
+  <section class="bagian" id="denah" aria-labelledby="judul-denah">
+    <div class="bagian-head">
+      <p class="kicker"><span class="kicker-no">Lembar 03</span> Denah giliran</p>
+      <h2 id="judul-denah">Siapa dapat, kapan, berapa</h2>
+      <p class="bagian-sub">Urutan di bawah ini hasil kocokan — bukan urutan daftar. Klik satu baris untuk melihat kartu orangnya.</p>
+    </div>
+    <div class="tabel-wrap">
+      <table class="tabel-denah" id="tabel-denah">
+        <thead>
+          <tr><th scope="col">Ronde</th><th scope="col">Nama</th><th scope="col">Tanggal giliran</th><th scope="col">Diterima</th><th scope="col">Status</th></tr>
+        </thead>
+        <tbody id="tbody-denah"></tbody>
+      </table>
+    </div>
+    <p class="denah-kosong" id="denah-kosong" hidden>Denah belum bisa digambar — anggota minimal 2 orang. Tambah dulu di Lembar 02.</p>
+
+    <article class="kartu-detail" id="kartu-detail" hidden aria-live="polite">
+      <button class="kartu-tutup" id="btn-tutup-detail" type="button" aria-label="Tutup kartu">×</button>
+      <p class="kicker"><span class="kicker-no" id="detail-ronde">Ronde 1</span> Kartu anggota</p>
+      <p class="detail-nama" id="detail-nama">—</p>
+      <dl class="detail-dl">
+        <div><dt>Tanggal giliran</dt><dd id="detail-tanggal">—</dd></div>
+        <div><dt>Diterima</dt><dd id="detail-terima">—</dd></div>
+        <div><dt>Status</dt><dd id="detail-status">—</dd></div>
+      </dl>
+    </article>
+  </section>
+
+  <!-- ============ CARA MAIN ============ -->
+  <section class="bagian" id="cara" aria-labelledby="judul-cara">
+    <div class="bagian-head">
+      <p class="kicker"><span class="kicker-no">Lembar 04</span> Cara main</p>
+      <h2 id="judul-cara">Tiga garis, selesai</h2>
+    </div>
+    <ol class="langkah">
+      <li><span class="langkah-no" aria-hidden="true">1</span><h3>Gambar grupmu</h3><p>Nama, iuran, periode, anggota. Atau pakai denah contoh — langsung jadi.</p></li>
+      <li><span class="langkah-no" aria-hidden="true">2</span><h3>Kocok &amp; tarik</h3><p>Tekan KOCOK, lalu seret kartu teratas. Nama yang keluar dapat giliran ronde itu.</p></li>
+      <li><span class="langkah-no" aria-hidden="true">3</span><h3>Bagikan denahnya</h3><p>Salin tautan atau ringkasan WA — semua anggota bisa cek urutan yang sama.</p></li>
+    </ol>
+    <aside class="catatan-arisan">
+      <h3>Yang dipakai di sini: arisan konvensional</h3>
+      <p>Setiap anggota setor iuran yang sama tiap periode; nama dikocok; yang keluar menerima pot penuh satu ronde; semua anggota tetap setor sampai semua dapat giliran sekali. Sistem ini dirangkum dari penjelasan arisan di <a href="https://rankia.id/apa-itu-arisan/" rel="noopener noreferrer">Rankia</a> dan <a href="https://www.simulasikredit.com/amp/mengenal-5-jenis-arisan-mana-yang-jadi-favorit-anda/" rel="noopener noreferrer">SimulasiKredit</a>. Arisan bukan tabungan dan bukan investasi — ini cara gotong royong berkumpul, bukan cara cari untung.</p>
+    </aside>
+  </section>
+
+  <!-- ============ RIWAYAT ============ -->
+  <section class="bagian" id="riwayat" aria-labelledby="judul-riwayat">
+    <div class="bagian-head">
+      <p class="kicker"><span class="kicker-no">Lembar 05</span> Arsip</p>
+      <h2 id="judul-riwayat">Arsip denah tersimpan</h2>
+      <p class="bagian-sub">Denah yang pernah digambar di peramban ini. Tersimpan lokal — tidak dikirim ke mana-mana.</p>
+    </div>
+    <div class="arsip-actions">
+      <button id="btn-simpan" type="button" class="btn">SIMPAN DENAH INI</button>
+      <button id="btn-ekspor" type="button" class="btn">EKSPOR JSON</button>
+      <button id="btn-salinan" type="button" class="btn">SALIN RINGKASAN WA</button>
+      <button id="btn-tautan" type="button" class="btn">SALIN TAUTAN DENAH</button>
+    </div>
+    <ul class="arsip-list" id="arsip-list"></ul>
+    <p class="arsip-kosong" id="arsip-kosong">Arsip masih kosong — belum ada denah yang disimpan. Tekan SIMPAN DENAH INI kalau denahmu sudah beres.</p>
+  </section>
+</main>
+
+<div class="marquee marquee-bawah" id="marquee-bawah" aria-hidden="true">
+  <div class="marquee-track marquee-balik" id="track-bawah"></div>
+</div>
+
+<footer class="kaki">
+  <p class="stempel-kaki" aria-hidden="true">DISETUJUI · PAK GAMBAR</p>
+  <p><strong>KARTUARISAN</strong> — Hari 18, 30 Days of Code. Denah digambar di perambanmu; tidak ada data yang dikirim ke server.</p>
+  <p>Font Rasa, Gothic A1, Titan One (OFL, self-host). Ikon digambar sendiri sebagai SVG. Referensi arisan: Rankia &amp; SimulasiKredit. Semua angka = CONTOH.</p>
+  <p class="kaki-kecil">Kocok adil: Fisher–Yates + crypto.getRandomValues, hash SHA-256 ditampilkan di bawah deck. Ketik “kocok” di mana saja untuk kocok cepat.</p>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>
